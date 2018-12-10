@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div id="url-container">
+    </div>
+    <input id="url" value="yandex.ru">
+    <button id="button">Ссылку!</button>
+    <script>
+
+        document.getElementById('button').onclick = function () {
+            var userInput = document.getElementById('url').value;
+
+            var url = (userInput.substr(0, 7) === 'http://') ? userInput :
+                    (userInput.substr(0, 8) === 'https://') ? userInput : 'http://' + userInput;
+
+            document.getElementById('url-container').innerHTML = url;
+        }
+    </script>
+</body>
+</html>

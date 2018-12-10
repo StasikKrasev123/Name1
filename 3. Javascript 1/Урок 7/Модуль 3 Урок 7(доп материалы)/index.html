@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap 101 Template</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .create-button {
+
+        }
+    </style>
+</head>
+<body>
+<h1>Привет, мир!</h1>
+<table class="table table-responsive users-table">
+    <thead>
+        <tr>
+            <td>
+                Имя пользователя
+            </td>
+            <td>
+                Пароль
+            </td>
+            <td>
+                E-mail
+            </td>
+            <td>
+                Группа
+            </td>
+            <td>
+                Активен
+            </td>
+            <td>
+
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>
+                <input class="form-control" name="username" type="text" placeholder="admin"
+                       data-validate="required">
+            </td>
+            <td>
+                <input class="form-control" name="password" type="password" placeholder="******"
+                       data-validate="required">
+            </td>
+            <td>
+                <input class="form-control" name="email" type="text" placeholder="admin@example.com"
+                       data-validate="required,email">
+            </td>
+            <td>
+                <select name="group" class="form-control" data-validate="notzero">
+                    <option value="0">Выберите</option>
+                    <option value="1">Администраторы</option>
+                    <option value="2">Пользователи</option>
+                </select>
+            </td>
+            <td>
+                <input type="checkbox" name="is-active">
+            </td>
+            <td>
+                <button class="btn btn-success create-button">Создать</button>
+            </td>
+        </tr>
+    </tfoot>
+</table>
+<button class="btn btn-primary btn-block save-button">Сохранить</button>
+<script>
+    function validateRequired() {
+        return this.value !== '';
+    }
+
+    function validateEmail() {
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(this.value);
+    }
+
+    function validateNotzero() {
+        return parseInt(this.value) !== 0;
+    }
+
+    window.onload = function() {
+        var errorMessages = {
+            'inputRequired': 'Поле ввода необходимо',
+            'inputEmail': 'Поле ввода должно являться корректным email',
+            'inputNotzero': 'Выберите что-нибудь'
+        };
+
+        function _$(selector) {
+            return document.querySelector(selector);
+        }
+
+        function _$$(selector) {
+            return document.querySelectorAll(selector);
+        }
+
+        function cleanValidation() {
+            this.parentNode.classList.remove('has-error');
+            this.parentNode.classList.remove('has-success');
+
+            var nextElement = this.nextElementSibling;
+            while(nextElement && nextElement.classList.contains('error-message')) {
+                nextElement.parentNode.removeChild(nextElement);
+                nextElement = this.nextElementSibling;
+            }
+        }
+
+        function addValidationError(message) {
+            cleanValidation.call(this);
+
+            var error = document.createElement('span');
+            error.classList.add('error-message');
+            error.innerHTML = message;
+            this.parentNode.insertBefore(error, this.nextElementSibling);
+
+            this.parentNode.classList.add('has-error');
+        }
+
+        function addValidationSuccess() {
+            cleanValidation.call(this);
+            this.parentNode.classList.add('has-success');
+        }
+
+        function validateForm() {
+            function validateCompose(prefix, rule) {
+                return prefix + rule.slice(0, 1).toUpperCase() + rule.slice(1);
+            }
+            var formValid = true;
+            var inputs = _$$('.users-table > tfoot input, .users-table > tfoot select, .users-table > tfoot textarea');
+
+            inputs.forEach(function(input) {
+                var validationAttribute = input.getAttribute('data-validate');
+
+                var validationRules = validationAttribute ? validationAttribute.split(',') : [];
+
+                var valid = true;
+                var error;
+
+                validationRules.forEach(function (rule) {
+                    var validationFunctionName = validateCompose('validate', rule);
+                    valid = valid && window[validationFunctionName].call(input);
+
+                    if (!error && !valid) error = rule;
+                });
+
+                if (!valid) {
+                    addValidationError.call(input, errorMessages[validateCompose('input', error)]);
+                } else {
+                    addValidationSuccess.call(input);
+                }
+
+                formValid = formValid && valid;
+            });
+            return formValid;
+        }
+
+        _$('.create-button').onclick = function () {
+            if (validateForm()) {
+                var tableBody = _$('.users-table tbody');
+
+                var row = document.createElement('tr');
+
+                var username = document.createElement('td');
+                var password = document.createElement('td');
+                var email = document.createElement('td');
+                var group = document.createElement('td');
+                var active = document.createElement('td');
+
+                var buttons = document.createElement('td');
+
+                username.setAttribute('data-field', 'username');
+                username.setAttribute('data-value', _$('[name="username"]').value);
+                username.innerText = _$('[name="username"]').value;
+
+                password.setAttribute('data-field', 'password');
+                password.setAttribute('data-value', _$('[name="password"]').value);
+                password.innerText = _$('[name="password"]').value.split('').map(
+                    function() { return '*'; }
+                ).join('');
+
+                email.setAttribute('data-field', 'email');
+                email.setAttribute('data-value', _$('[name="email"]').value);
+                email.innerText = _$('[name="email"]').value;
+
+                var options = [];
+                _$$('[name="group"] option').forEach(
+                    function(item) {
+                        if (item.selected) options.push(item);
+                    }
+                );
+
+                group.setAttribute('data-field', 'group');
+                group.setAttribute('data-value', options[0].value);
+                group.innerText = options[0].innerText;
+
+                active.setAttribute('data-field', 'active');
+                active.setAttribute('data-value', _$('[name="is-active"]').checked ? 'true' : 'false');
+                active.innerText = _$('[name="is-active"]').checked ? 'Да' : 'Нет';
+
+                row.appendChild(username);
+                row.appendChild(password);
+                row.appendChild(email);
+                row.appendChild(group);
+                row.appendChild(active);
+
+                var deleteButton = document.createElement('button');
+                deleteButton.classList.add('btn', 'btn-danger', 'delete-button');
+                deleteButton.innerText = 'x';
+
+                deleteButton.onclick = function() {
+                    this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
+                };
+
+                buttons.appendChild(deleteButton);
+
+                row.appendChild(buttons);
+
+                tableBody.appendChild(row);
+            }
+        };
+
+        _$('.save-button').onclick = function() {
+            var data = [];
+            _$$('.users-table > tbody > tr').forEach(
+                function(row) {
+                    var rowData = {};
+                    var cell = row.firstElementChild;
+                    do {
+                        if (cell.hasAttribute('data-field'))
+                        {
+                            rowData[cell.getAttribute('data-field')] = cell.getAttribute('data-value');
+                        }
+                    } while (cell = cell.nextElementSibling);
+
+                    data.push(rowData);
+
+                    console.log(Object.keys(rowData).map(
+                        function(key) { return key + '=' + rowData[key] }).join('&')
+                    );
+                }
+            );
+
+            console.log(JSON.stringify(data, null, '    '));
+        };
+    }
+</script>
+</body>
+</html>
